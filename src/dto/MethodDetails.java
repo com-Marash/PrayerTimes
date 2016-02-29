@@ -1,4 +1,4 @@
-package main;
+package dto;
 import methodDetailsEnums.asrJuristics;
 import methodDetailsEnums.highLatMethods;
 import methodDetailsEnums.midnightMethods;

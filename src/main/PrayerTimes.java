@@ -12,6 +12,8 @@ package main;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
+import dto.Coordination;
+import dto.MethodDetails;
 import methodDetailsEnums.asrJuristics;
 import methodDetailsEnums.highLatMethods;
 import methodDetailsEnums.midnightMethods;
@@ -123,6 +125,23 @@ public class PrayerTimes {
 	public int[] getOffsets() {
 		return offset;
 	};
-
+	
+	// return prayer times for a given date
+	public int getTimes(date, Coordination coords, timezone, dst, timeFormats format) {
+		lat = coords.getLat();
+		lng = coords.getLng(); 
+		elv = (coords.getLng() == null) ? 0 : coords.getLng();
+		timeFormat = (format == null)? timeFormat : format;
+		if (date.constructor === Date)
+			date = [date.getFullYear(), date.getMonth()+ 1, date.getDate()];
+		if (typeof(timezone) == 'undefined' || timezone == 'auto')
+			timezone = this.getTimeZone(date);
+		if (typeof(dst) == 'undefined' || dst == 'auto') 
+			dst = this.getDst(date);
+		timeZone = 1* timezone+ (1* dst ? 1 : 0);
+		jDate = this.julian(date[0], date[1], date[2])- lng/ (15* 24);
+		
+		return this.computeTimes();
+	};
 			
 }
