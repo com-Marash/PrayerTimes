@@ -1,13 +1,17 @@
-import enums.asrJuristics;
-import enums.highLatMethods;
-import enums.midnightMethods;
+package main;
+import methodDetailsEnums.asrJuristics;
+import methodDetailsEnums.highLatMethods;
+import methodDetailsEnums.midnightMethods;
 
 public class MethodDetails {
 
 	public String name;
-	public double fajr, isha, maghrib;
+	public double fajr;
+	public double isha;
+	public double maghrib;
 	public midnightMethods midnight;
-	public int ishaMin, maghribMin;
+	public int ishaMin;
+	public int maghribMin;
 	public int imsakMin;
 	public int dhuhrMin;
 	public asrJuristics asr;

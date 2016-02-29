@@ -1,8 +1,22 @@
-import java.lang.reflect.Method;
+/*
+ * This code is using prayerTimes.org as main resource.
+ * 
+ * Development: Marash Company
+ * License: MIT
+ * Url: https://github.com/com-Marash/PrayerTimes
+ * Version: 0.0.1-preAlpha 
+ * 
+ */
 
-import enums.asrJuristics;
-import enums.highLatMethods;
-import enums.midnightMethods;
+package main;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+
+import methodDetailsEnums.asrJuristics;
+import methodDetailsEnums.highLatMethods;
+import methodDetailsEnums.midnightMethods;
+
+
 
 public class PrayerTimes {
 	
@@ -21,10 +35,14 @@ public class PrayerTimes {
 		Tehran(new MethodDetails("Institute of Geophysics, University of Tehran", 17.7, 14, 4.5, midnightMethods.Jafari, -1, -1, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle)),
 		Jafari(new MethodDetails("Shia Ithna-Ashari, Leva Institute, Qum", 16, 14, 4, midnightMethods.Jafari, -1, -1, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle));
 		
-		public MethodDetails details;
+		private MethodDetails details;
 		
 		methods(MethodDetails details){
 			this.details = details;
+		}
+		
+		public MethodDetails getDetails() {
+			return details;
 		}
 	}
 	
@@ -37,21 +55,25 @@ public class PrayerTimes {
 	}
 	
 	//---------------------- Default Settings --------------------
-
+	//----------------------- Local Variables ---------------------
+	
 	private methods calcMethod;
 
-	private static class setting{
-		
-	}
+	private MethodDetails setting;
 	
 	private timeFormats timeFormat;
 	private String[] timeSuffixes;
 	private String invalidTime;
 	private int numIterations;
-	private Object offset;
 	
+	// offset for Imsak, Fajr, Sunrise, Dhuhr, Asr, Sunset, Maghrib, Isha, Midnight
+	private int[] offset;
+	
+	private double lat, lng, elv,       // coordinates
+	timeZone, jDate;     // time variables
 	
 
+	// constructor
 	
 	public PrayerTimes() {
 		
@@ -59,16 +81,48 @@ public class PrayerTimes {
 		timeSuffixes = new String[]{"am","pm"};
 		invalidTime = "-----";
 		numIterations = 1;
-		offset = new Object();
+		offset = new int[]{0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0};
+		
+		// default calcMethod
 		calcMethod = methods.MWL;
+		// set the setting based on default method
+		setting = calcMethod.getDetails();
+		
+	}		
+			
+	//----------------------- Public Functions ------------------------
+			
+	// set calculation method 
+	public void setMethod(methods method) {		
+		this.adjust(method.getDetails());
+		calcMethod = method;
 	}
 
+	// set calculating parameters
+	public void adjust (MethodDetails details) {
+		setting = details;
+	}
 
-	// init time offsets
-	for (var i in timeNames)
-		offset[i] = 0;
+	// offset for Imsak, Fajr, Sunrise, Dhuhr, Asr, Sunset, Maghrib, Isha, Midnight
+	// set time offsets
+	public void tune (int[] timeOffsets) {
+		offset = timeOffsets;
+	};
+
+	// get current calculation method
+	public methods getMethod(){
+		return calcMethod; 
+	};
+
+	// get current setting
+	public MethodDetails getSetting(){
+		return setting;
+	};
+
+	// get current time offsets
+	public int[] getOffsets() {
+		return offset;
+	};
+
 			
-	//----------------------- Local Variables ---------------------
-	private double lat, lng, elv,       // coordinates
-		timeZone, jDate;     // time variables
 }

@@ -1,4 +1,4 @@
-package enums;
+package methodDetailsEnums;
 
 public enum highLatMethods {
 	NightMiddle, // middle of night
