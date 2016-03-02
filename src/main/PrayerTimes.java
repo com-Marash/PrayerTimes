@@ -127,21 +127,110 @@ public class PrayerTimes {
 	};
 	
 	// return prayer times for a given date
-	public int getTimes(date, Coordination coords, timezone, dst, timeFormats format) {
+	// date is an array of three integers: [fullYear, month, day]
+	// coordination
+	// timezone : Double can be -12 to +12
+	// dst refers to daylight saving time it can true (+1 hour) or false (+0 hour) 
+	
+	public int getTimes(int[] date, Coordination coords, Double timezone, Boolean dst, timeFormats format) {
 		lat = coords.getLat();
 		lng = coords.getLng(); 
 		elv = (coords.getLng() == null) ? 0 : coords.getLng();
 		timeFormat = (format == null)? timeFormat : format;
-		if (date.constructor === Date)
-			date = [date.getFullYear(), date.getMonth()+ 1, date.getDate()];
-		if (typeof(timezone) == 'undefined' || timezone == 'auto')
+		
+		// get the timeZone based on the input date
+		if (timezone == null){
 			timezone = this.getTimeZone(date);
-		if (typeof(dst) == 'undefined' || dst == 'auto') 
+		}
+		
+		if (dst == null) 
 			dst = this.getDst(date);
-		timeZone = 1* timezone+ (1* dst ? 1 : 0);
+		
+		// add daylight saving
+		timeZone = timezone + (dst ? 1 : 0);
+		
 		jDate = this.julian(date[0], date[1], date[2])- lng/ (15* 24);
 		
 		return this.computeTimes();
-	};
+	}
+	
+	// convert float time to the given format (see timeFormats)
+	public	getFormattedTime(time, format, suffixes) {
+		if (isNaN(time))
+			return invalidTime;
+		if (format == 'Float') return time;
+		suffixes = suffixes || timeSuffixes;
+		
+		time = DMath.fixHour(time+ 0.5/ 60);  // add 0.5 minutes to round
+		var hours = Math.floor(time); 
+		var minutes = Math.floor((time- hours)* 60);
+		var suffix = (format == '12h') ? suffixes[hours < 12 ? 0 : 1] : '';
+		var hour = (format == '24h') ? this.twoDigitsFormat(hours) : ((hours+ 12 -1)% 12+ 1);
+		return hour+ ':'+ this.twoDigitsFormat(minutes)+ (suffix ? ' '+ suffix : '');
+	}
+	
+	//---------------------- Calculation Functions -----------------------
+
+
+	// compute mid-day time
+	midDay: function(time) {
+		var eqt = this.sunPosition(jDate+ time).equation;
+		var noon = DMath.fixHour(12- eqt);
+		return noon;
+	},
+
+
+	// compute the time at which sun reaches a specific angle below horizon
+	sunAngleTime: function(angle, time, direction) {
+		var decl = this.sunPosition(jDate+ time).declination;
+		var noon = this.midDay(time);
+		var t = 1/15* DMath.arccos((-DMath.sin(angle)- DMath.sin(decl)* DMath.sin(lat))/ 
+				(DMath.cos(decl)* DMath.cos(lat)));
+		return noon+ (direction == 'ccw' ? -t : t);
+	},
+
+
+	// compute asr time 
+	asrTime: function(factor, time) { 
+		var decl = this.sunPosition(jDate+ time).declination;
+		var angle = -DMath.arccot(factor+ DMath.tan(Math.abs(lat- decl)));
+		return this.sunAngleTime(angle, time);
+	},
+
+
+	// compute declination angle of sun and equation of time
+	// Ref: http://aa.usno.navy.mil/faq/docs/SunApprox.php
+	sunPosition: function(jd) {
+		var D = jd - 2451545.0;
+		var g = DMath.fixAngle(357.529 + 0.98560028* D);
+		var q = DMath.fixAngle(280.459 + 0.98564736* D);
+		var L = DMath.fixAngle(q + 1.915* DMath.sin(g) + 0.020* DMath.sin(2*g));
+
+		var R = 1.00014 - 0.01671* DMath.cos(g) - 0.00014* DMath.cos(2*g);
+		var e = 23.439 - 0.00000036* D;
+
+		var RA = DMath.arctan2(DMath.cos(e)* DMath.sin(L), DMath.cos(L))/ 15;
+		var eqt = q/15 - DMath.fixHour(RA);
+		var decl = DMath.arcsin(DMath.sin(e)* DMath.sin(L));
+
+		return {declination: decl, equation: eqt};
+	},
+
+
+	// convert Gregorian date to Julian day
+	// Ref: Astronomical Algorithms by Jean Meeus
+	julian: function(year, month, day) {
+		if (month <= 2) {
+			year -= 1;
+			month += 12;
+		};
+		var A = Math.floor(year/ 100);
+		var B = 2- A+ Math.floor(A/ 4);
+
+		var JD = Math.floor(365.25* (year+ 4716))+ Math.floor(30.6001* (month+ 1))+ day+ B- 1524.5;
+		return JD;
+	},
+
+	
 			
 }

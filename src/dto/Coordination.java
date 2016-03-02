@@ -1,18 +1,18 @@
 package dto;
 
 public class Coordination {
-	private double lat;
-	private double lng;
-	public double getLat() {
+	private Double lat;
+	private Double lng;
+	public Double getLat() {
 		return lat;
 	}
-	public void setLat(double lat) {
+	public void setLat(Double lat) {
 		this.lat = lat;
 	}
-	public double getLng() {
+	public Double getLng() {
 		return lng;
 	}
-	public void setLng(double lng) {
+	public void setLng(Double lng) {
 		this.lng = lng;
 	}
 }
