@@ -3,6 +3,7 @@ package dto;
 public class Coordination {
 	private Double lat;
 	private Double lng;
+	
 	public Double getLat() {
 		return lat;
 	}
