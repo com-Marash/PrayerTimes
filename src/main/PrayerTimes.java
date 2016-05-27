@@ -9,12 +9,14 @@
  */
 
 package main;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import dto.Coordination;
 import dto.MethodDetails;
 import dto.sunPositionData;
+import dto.prayerTimesData;
 import methodDetailsEnums.asrJuristics;
 import methodDetailsEnums.highLatMethods;
 import methodDetailsEnums.midnightMethods;
@@ -171,8 +173,8 @@ public class PrayerTimes {
 		time = DMath.fixHour(time+ 0.5/ 60);  // add 0.5 minutes to round
 		double hours = Math.floor(time); 
 		double minutes = Math.floor((time- hours)* 60);
-		String suffix = format == timeFormats.t_12h ? suffixes[hours < 12 ? 0 : 1] : "";
-		double hour = format == timeFormats.t_24h ? twoDigitsFormat(hours) : ((hours+ 12 -1)% 12+ 1);
+		String suffix = (format == timeFormats.t_12h) ? suffixes[hours < 12 ? 0 : 1] : "";
+		double hour = (format == timeFormats.t_24h) ? twoDigitsFormat(hours) : ((hours+ 12 -1)% 12+ 1);
 		return hour+ ":"+ this.twoDigitsFormat(minutes)+ (suffix ? " "+ suffix : "");
 	}
 	
@@ -248,24 +250,21 @@ public class PrayerTimes {
 
 	
 	// compute prayer times at given julian date
-	public double computePrayerTimes (double times) {
-		times = this.dayPortion(times);
-		var params  = setting;
+	public prayerTimesData computePrayerTimes (prayerTimesData times) {
+		times = dayPortion(times);
+		MethodDetails params  = setting;
 
-		double imsak   = this.sunAngleTime(this.eval(params.imsak), times.imsak, true);
-		double fajr    = this.sunAngleTime(this.eval(params.fajr), times.fajr, true);
-		double sunrise = this.sunAngleTime(this.riseSetAngle(), times.sunrise, true);
+		double imsak   = this.sunAngleTime(eval(params.imsakMin), times.imsak, true);
+		double fajr    = this.sunAngleTime(eval(params.fajr), times.fajr, true);
+		double sunrise = this.sunAngleTime(riseSetAngle(), times.sunrise, true);
 		double dhuhr   = this.midDay(times.dhuhr);
-		double asr     = this.asrTime(this.asrFactor(params.asr), times.asr);
-		double sunset  = this.sunAngleTime(this.riseSetAngle(), times.sunset);;
-		double maghrib = this.sunAngleTime(this.eval(params.maghrib), times.maghrib);
-		double isha    = this.sunAngleTime(this.eval(params.isha), times.isha);
+		double asr     = this.asrTime(asrFactor(params.asr), times.asr);
+		double sunset  = this.sunAngleTime(riseSetAngle(), times.sunset , false);;
+		double maghrib = this.sunAngleTime(eval(params.maghrib), times.maghrib, false);
+		double isha    = this.sunAngleTime(eval(params.isha), times.isha, false);
 
-		return {
-			imsak: imsak, fajr: fajr, sunrise: sunrise, dhuhr: dhuhr,
-			asr: asr, sunset: sunset, maghrib: maghrib, isha: isha
-		};
-	},
+		return new prayerTimesData(imsak, fajr, sunrise, dhuhr, asr, sunset, maghrib, isha);
+	}
 
 
 	// compute prayer times
@@ -310,23 +309,30 @@ public class PrayerTimes {
 		times.dhuhr += this.eval(params.dhuhr)/ 60;
 
 		return times;
-	},
+	}
 
 
 	// get asr shadow factor
-	asrFactor: function(asrParam) {
-		var factor = {Standard: 1, Hanafi: 2}[asrParam];
-		return factor || this.eval(asrParam);
-	},
-
+	public double asrFactor(asrJuristics asrParam) {
+		
+		if(asrParam == asrJuristics.Standard){
+			return 1;
+		}else if (asrParam == asrJuristics.Hanafi){
+			return 2;
+		}
+		throw new Exception("asrParam is unset");
+	}
+	public double asrFactor(int asrParam) {
+		return eval(asrParam);
+	}
 
 	// return sun angle for sunset/sunrise
-	riseSetAngle: function() {
+	function double riseSetAngle() {
 		//var earthRad = 6371009; // in meters
 		//var angle = DMath.arccos(earthRad/(earthRad+ elv));
-		var angle = 0.0347* Math.sqrt(elv); // an approximation
+		double angle = 0.0347* Math.sqrt(elv); // an approximation
 		return 0.833+ angle;
-	},
+	}
 
 
 	// apply offsets to the times
@@ -338,11 +344,19 @@ public class PrayerTimes {
 
 
 	// convert times to given time format
-	modifyFormats: function(times) {
-		for (var i in times)
-			times[i] = this.getFormattedTime(times[i], timeFormat);
+	public prayerTimesData modifyFormats(prayerTimesData times) {
+		
+		times.imsak = getFormattedTime(times.imsak, timeFormat);
+		times.fajr = getFormattedTime(times.fajr, timeFormat);
+		times.sunrise = getFormattedTime(times.sunrise, timeFormat);
+		times.dhuhr= getFormattedTime(times.dhuhr, timeFormat);
+		times.asr= getFormattedTime(times.asr, timeFormat);
+		times.sunset= getFormattedTime(times.sunset, timeFormat);
+		times.maghrib= getFormattedTime(times.maghrib, timeFormat);
+		times.isha= getFormattedTime(times.isha, timeFormat);
+	        
 		return times;
-	},
+	}
 
 
 	// adjust times for locations in higher latitudes
@@ -384,11 +398,11 @@ public class PrayerTimes {
 
 
 	// convert hours to day portions
-	dayPortion: function(times) {
+	public prayerTimesData dayPortion( prayerTimesData times) {
 		for (var i in times)
 			times[i] /= 24;
 		return times;
-	},
+	}
 
 
 	//---------------------- Time Zone Functions -----------------------
@@ -416,7 +430,7 @@ public class PrayerTimes {
 		var GMTDate = new Date(GMTString.substring(0, GMTString.lastIndexOf(' ')- 1));
 		var hoursDiff = (localDate- GMTDate) / (1000* 60* 60);
 		return hoursDiff;
-	},
+	}
 
 
 	//---------------------- Misc Functions -----------------------
@@ -424,6 +438,14 @@ public class PrayerTimes {
 	// convert given string into a number
 	public double eval(String str) {
 		return Double.parseDouble(str.split("[^0-9.+-]")[0]);
+	}
+	
+	public double eval(double str) {
+		return str;
+	}
+	
+	public double eval(int str) {
+		return str;
 	}
 
 
