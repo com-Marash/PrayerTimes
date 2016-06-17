@@ -12,6 +12,10 @@ package main;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import dto.Coordination;
 import dto.MethodDetails;
@@ -135,7 +139,7 @@ public class PrayerTimes {
 	// timezone : Double can be -12 to +12
 	// dst refers to daylight saving time it can true (+1 hour) or false (+0 hour) 
 	
-	public int getTimes(int[] date, Coordination coords, Double timezone, Boolean dst, timeFormats format) {
+	public prayerTimesData getTimes(int[] date, Coordination coords, Double timezone, Boolean dst, timeFormats format) {
 		lat = coords.getLat();
 		lng = coords.getLng(); 
 		elv = (coords.getLng() == null) ? 0 : coords.getLng();
@@ -173,9 +177,9 @@ public class PrayerTimes {
 		time = DMath.fixHour(time+ 0.5/ 60);  // add 0.5 minutes to round
 		double hours = Math.floor(time); 
 		double minutes = Math.floor((time- hours)* 60);
-		String suffix = (format == timeFormats.t_12h) ? suffixes[hours < 12 ? 0 : 1] : "";
-		double hour = (format == timeFormats.t_24h) ? twoDigitsFormat(hours) : ((hours+ 12 -1)% 12+ 1);
-		return hour+ ":"+ this.twoDigitsFormat(minutes)+ (suffix ? " "+ suffix : "");
+		String suffix = (format.equals(timeFormats.t_12h)) ? suffixes[hours < 12 ? 0 : 1] : "";
+		double hour = (format.equals(timeFormats.t_24h)) ? twoDigitsFormat(hours) : ((hours+ 12 -1)% 12+ 1);
+		return hour+ ":"+ this.twoDigitsFormat(minutes)+ (!suffix.isEmpty() ? " "+ suffix : "");
 	}
 	
 	//---------------------- Calculation Functions -----------------------
@@ -254,59 +258,65 @@ public class PrayerTimes {
 		times = dayPortion(times);
 		MethodDetails params  = setting;
 
-		double imsak   = this.sunAngleTime(eval(params.imsakMin), times.imsak, true);
-		double fajr    = this.sunAngleTime(eval(params.fajr), times.fajr, true);
-		double sunrise = this.sunAngleTime(riseSetAngle(), times.sunrise, true);
-		double dhuhr   = this.midDay(times.dhuhr);
-		double asr     = this.asrTime(asrFactor(params.asr), times.asr);
-		double sunset  = this.sunAngleTime(riseSetAngle(), times.sunset , false);;
-		double maghrib = this.sunAngleTime(eval(params.maghrib), times.maghrib, false);
-		double isha    = this.sunAngleTime(eval(params.isha), times.isha, false);
+		double imsak   = this.sunAngleTime(eval(params.getImsakMin()), times.getImsak(), true);
+		double fajr    = this.sunAngleTime(eval(params.getFajr()), times.getFajr(), true);
+		double sunrise = this.sunAngleTime(riseSetAngle(), times.getSunrise(), true);
+		double dhuhr   = this.midDay(times.getDhuhr());
+		double asr     = this.asrTime(asrFactor(params.getAsr()), times.getAsr());
+		double sunset  = this.sunAngleTime(riseSetAngle(), times.getSunset() , false);;
+		double maghrib = this.sunAngleTime(eval(params.getMaghrib()), times.getMaghrib(), false);
+		double isha    = this.sunAngleTime(eval(params.getIsha()), times.getIsha(), false);
 
-		return new prayerTimesData(imsak, fajr, sunrise, dhuhr, asr, sunset, maghrib, isha);
+		return new prayerTimesData(imsak, fajr, sunrise, dhuhr, asr, sunset, maghrib, isha, null);
 	}
 
-
+	
 	// compute prayer times
-	computeTimes: function() {
+	public prayerTimesData computeTimes() {
 		// default times
-		var times = {
-			imsak: 5, fajr: 5, sunrise: 6, dhuhr: 12,
-			asr: 13, sunset: 18, maghrib: 18, isha: 18
-		};
+		prayerTimesData times = new prayerTimesData(5, 5, 6, 12, 13, 18, 18, 18, null);
 
 		// main iterations
-		for (var i=1 ; i<=numIterations ; i++)
+		for (int i=1 ; i<=numIterations ; i++)
 			times = this.computePrayerTimes(times);
 
 		times = this.adjustTimes(times);
 
 		// add midnight time
-		times.midnight = (setting.midnight == 'Jafari') ?
-				times.sunset+ this.timeDiff(times.sunset, times.fajr)/ 2 :
-				times.sunset+ this.timeDiff(times.sunset, times.sunrise)/ 2;
+		times.setMidnight( (setting.getMidnight().equals(midnightMethods.Jafari)) ?
+				times.getSunset()+ timeDiff(times.getSunset(), times.getFajr())/ 2 :
+				times.getSunset()+ timeDiff(times.getSunset(), times.getSunrise())/ 2);
 
 		times = this.tuneTimes(times);
-		return this.modifyFormats(times);
-	},
+		return times;
+		//return modifyFormats(times);
+	}
 
 
 	// adjust times
-	adjustTimes: function(times) {
-		var params = setting;
-		for (var i in times)
-			times[i] += timeZone- lng/ 15;
+	private prayerTimesData adjustTimes( prayerTimesData times) {
+		MethodDetails params = setting;
 
-		if (params.highLats != 'None')
-			times = this.adjustHighLats(times);
+		times.setAsr(times.getAsr() + timeZone - lng/ 15);
+		times.setImsak(times.getImsak() + timeZone - lng/ 15);
+		times.setFajr(times.getFajr() + timeZone - lng/ 15);
+		times.setSunrise(times.getSunrise() + timeZone - lng/ 15);
+		times.setDhuhr(times.getDhuhr() + timeZone - lng/ 15);
+		times.setSunset(times.getSunset() + timeZone - lng/ 15);
+		times.setMaghrib(times.getMaghrib() + timeZone - lng/ 15);
+		times.setIsha(times.getIsha() + timeZone - lng/ 15);
+		
+		
+		if (!params.getHighLats().equals(highLatMethods.None))
+			times = adjustHighLats(times);
 
-		if (this.isMin(params.imsak))
-			times.imsak = times.fajr- this.eval(params.imsak)/ 60;
-		if (this.isMin(params.maghrib))
-			times.maghrib = times.sunset+ this.eval(params.maghrib)/ 60;
-		if (this.isMin(params.isha))
-			times.isha = times.maghrib+ this.eval(params.isha)/ 60;
-		times.dhuhr += this.eval(params.dhuhr)/ 60;
+		
+		times.setImsak( times.getFajr() - eval(params.getImsakMin())/ 60);
+		
+		times.setMaghrib(times.getSunset()+ eval(params.getMaghrib())/ 60);
+		
+		times.setIsha(times.getMaghrib()+ eval(params.getIsha())/ 60);
+		times.setDhuhr( times.getDhuhr() + eval(params.getDhuhrMin())/ 60);
 
 		return times;
 	}
@@ -327,7 +337,7 @@ public class PrayerTimes {
 	}
 
 	// return sun angle for sunset/sunrise
-	function double riseSetAngle() {
+	private double riseSetAngle() {
 		//var earthRad = 6371009; // in meters
 		//var angle = DMath.arccos(earthRad/(earthRad+ elv));
 		double angle = 0.0347* Math.sqrt(elv); // an approximation
@@ -336,18 +346,27 @@ public class PrayerTimes {
 
 
 	// apply offsets to the times
-	tuneTimes: function(times) {
-		for (var i in times)
-			times[i] += offset[i]/ 60;
+	private prayerTimesData tuneTimes(prayerTimesData times) {
+
+		times.setAsr(times.getAsr() + offset[0]/ 60);
+		times.setImsak(times.getImsak() + offset[1]/ 60);
+		times.setFajr(times.getFajr() + offset[2]/ 60);
+		times.setSunrise(times.getSunrise() + offset[3]/ 60);
+		times.setDhuhr(times.getDhuhr() + offset[4]/ 60);
+		times.setSunset(times.getSunset() + offset[5]/ 60);
+		times.setMaghrib(times.getMaghrib() + offset[6]/ 60);
+		times.setIsha(times.getIsha() + offset[7]/ 60);
+		times.setMidnight(times.getMidnight() + offset[8]/ 60);
+		
 		return times;
-	},
+	}
 
 
 	// convert times to given time format
 	public prayerTimesData modifyFormats(prayerTimesData times) {
 		
-		times.imsak = getFormattedTime(times.imsak, timeFormat);
-		times.fajr = getFormattedTime(times.fajr, timeFormat);
+		times.setImsak(getFormattedTime(times.getImsak(), timeFormat, null));
+		times.setFajr (getFormattedTime(times.getFajr(), timeFormat, null));
 		times.sunrise = getFormattedTime(times.sunrise, timeFormat);
 		times.dhuhr= getFormattedTime(times.dhuhr, timeFormat);
 		times.asr= getFormattedTime(times.asr, timeFormat);
@@ -360,7 +379,7 @@ public class PrayerTimes {
 
 
 	// adjust times for locations in higher latitudes
-	adjustHighLats: function(times) {
+	private prayerTimesData adjustHighLats(prayerTimesData times) {
 		var params = setting;
 		var nightTime = this.timeDiff(times.sunset, times.sunrise);
 
@@ -370,8 +389,7 @@ public class PrayerTimes {
 		times.maghrib = this.adjustHLTime(times.maghrib, times.sunset, this.eval(params.maghrib), nightTime);
 
 		return times;
-	},
-
+	}
 
 	// adjust a time for higher latitudes
 	adjustHLTime: function(time, base, angle, night, direction) {
@@ -409,27 +427,30 @@ public class PrayerTimes {
 
 
 	// get local time zone
-	getTimeZone: function(date) {
-		var year = date[0];
-		var t1 = this.gmtOffset([year, 0, 1]);
-		var t2 = this.gmtOffset([year, 6, 1]);
+	private double getTimeZone(int[] date) {
+		int year = date[0];
+		double t1 = gmtOffset(new int[]{year, 1, 1});
+		double t2 = gmtOffset(new int[]{year, 6, 1});
 		return Math.min(t1, t2);
-	},
+	}
 
 
 	// get daylight saving for a given date
-	getDst: function(date) {
-		return 1* (this.gmtOffset(date) != this.getTimeZone(date));
-	},
-
+	private boolean getDst(int[] date) {
+		if (gmtOffset(date) != getTimeZone(date)){
+			return true;
+		}else{
+			return false;
+		}
+	}
 
 	// GMT offset for a given date
-	gmtOffset: function(date) {
-		var localDate = new Date(date[0], date[1]- 1, date[2], 12, 0, 0, 0);
-		var GMTString = localDate.toGMTString();
-		var GMTDate = new Date(GMTString.substring(0, GMTString.lastIndexOf(' ')- 1));
-		var hoursDiff = (localDate- GMTDate) / (1000* 60* 60);
-		return hoursDiff;
+	private double gmtOffset(int[] date) {
+		
+		Calendar requestedDate = new GregorianCalendar(date[0], date[1]-1, date[2]);		
+		TimeZone tz = Calendar.getInstance().getTimeZone();
+		double offset = tz.getOffset(requestedDate.getTimeInMillis())  /  (1000 * 60 * 60);
+		return offset;
 	}
 
 
@@ -448,25 +469,15 @@ public class PrayerTimes {
 		return str;
 	}
 
-
-	// detect if input contains 'min'
-	isMin: function(arg) {
-		return (arg+ '').indexOf('min') != -1;
-	},
-
-
 	// compute the difference between two times
-	timeDiff: function(time1, time2) {
+	private double timeDiff(double time1, double time2) {
 		return DMath.fixHour(time2- time1);
-	},
+	}
 
 
 	// add a leading 0 if necessary
-	twoDigitsFormat: function(num) {
+	private double twoDigitsFormat(double num) {
 		return (num <10) ? '0'+ num : num;
 	}
 
-}}
-
-			
 }
