@@ -4,7 +4,7 @@
  * Development: Marash Company
  * License: MIT
  * Url: https://github.com/com-Marash/PrayerTimes
- * Version: 0.0.1-preAlpha 
+ * Version: 0.1.0-Alpha 
  * 
  */
 
@@ -139,7 +139,7 @@ public class PrayerTimes {
 	// timezone : Double can be -12 to +12
 	// dst refers to daylight saving time it can true (+1 hour) or false (+0 hour) 
 	
-	public prayerTimesData getTimes(int[] date, Coordination coords, Double timezone, Boolean dst, timeFormats format) {
+	public prayerTimesData getTimes(int[] date, Coordination coords, Double timezone, Boolean dst, timeFormats format) throws Exception {
 		lat = coords.getLat();
 		lng = coords.getLng(); 
 		elv = (coords.getLng() == null) ? 0 : coords.getLng();
@@ -161,6 +161,7 @@ public class PrayerTimes {
 		return computeTimes();
 	}
 	
+	/* ###### not supported at this time ###### */
 	// convert float time to the given format (see timeFormats)
 	public	String getFormattedTime(double time, timeFormats format, String[] suffixes) {
 		
@@ -254,7 +255,7 @@ public class PrayerTimes {
 
 	
 	// compute prayer times at given julian date
-	public prayerTimesData computePrayerTimes (prayerTimesData times) {
+	private prayerTimesData computePrayerTimes (prayerTimesData times) throws Exception {
 		times = dayPortion(times);
 		MethodDetails params  = setting;
 
@@ -272,7 +273,7 @@ public class PrayerTimes {
 
 	
 	// compute prayer times
-	public prayerTimesData computeTimes() {
+	private prayerTimesData computeTimes() throws Exception {
 		// default times
 		prayerTimesData times = new prayerTimesData(5, 5, 6, 12, 13, 18, 18, 18, null);
 
@@ -323,7 +324,7 @@ public class PrayerTimes {
 
 
 	// get asr shadow factor
-	public double asrFactor(asrJuristics asrParam) {
+	private double asrFactor(asrJuristics asrParam) throws Exception {
 		
 		if(asrParam == asrJuristics.Standard){
 			return 1;
@@ -332,7 +333,7 @@ public class PrayerTimes {
 		}
 		throw new Exception("asrParam is unset");
 	}
-	public double asrFactor(int asrParam) {
+	private double asrFactor(int asrParam) {
 		return eval(asrParam);
 	}
 
@@ -362,6 +363,7 @@ public class PrayerTimes {
 	}
 
 
+	/* we do not support format
 	// convert times to given time format
 	public prayerTimesData modifyFormats(prayerTimesData times) {
 		
@@ -376,49 +378,58 @@ public class PrayerTimes {
 	        
 		return times;
 	}
-
+	*/
 
 	// adjust times for locations in higher latitudes
 	private prayerTimesData adjustHighLats(prayerTimesData times) {
-		var params = setting;
-		var nightTime = this.timeDiff(times.sunset, times.sunrise);
+		MethodDetails params = setting;
+		double nightTime = this.timeDiff(times.getSunset(), times.getSunrise());
 
-		times.imsak = this.adjustHLTime(times.imsak, times.sunrise, this.eval(params.imsak), nightTime, 'ccw');
-		times.fajr  = this.adjustHLTime(times.fajr, times.sunrise, this.eval(params.fajr), nightTime, 'ccw');
-		times.isha  = this.adjustHLTime(times.isha, times.sunset, this.eval(params.isha), nightTime);
-		times.maghrib = this.adjustHLTime(times.maghrib, times.sunset, this.eval(params.maghrib), nightTime);
+		times.setImsak ( this.adjustHLTime(times.getImsak(), times.getSunrise(), this.eval(params.getImsakMin()), nightTime, "ccw") );
+		times.setFajr ( this.adjustHLTime(times.getFajr(), times.getSunrise(), this.eval(params.getFajr()), nightTime, "ccw") );
+		times.setIsha  ( this.adjustHLTime(times.getIsha(), times.getSunset(), this.eval(params.getIsha()), nightTime, null) );
+		times.setMaghrib ( this.adjustHLTime(times.getMaghrib(), times.getSunset(), this.eval(params.getMaghrib()), nightTime, null) );
 
 		return times;
 	}
 
 	// adjust a time for higher latitudes
-	adjustHLTime: function(time, base, angle, night, direction) {
-		var portion = this.nightPortion(angle, night);
-		var timeDiff = (direction == 'ccw') ?
+	private double adjustHLTime(double time, double base, double angle, double night, String direction) {
+		double portion = this.nightPortion(angle, night);
+		double timeDiff = (direction != null && direction.equals("ccw")) ?
 			this.timeDiff(time, base):
 			this.timeDiff(base, time);
-		if (isNaN(time) || timeDiff > portion)
-			time = base+ (direction == 'ccw' ? -portion : portion);
+		if ( timeDiff > portion)
+			time = base + ((direction != null && direction.equals("ccw")) ? -portion : portion);
 		return time;
-	},
+	}
 
 
 	// the night portion used for adjusting times in higher latitudes
-	nightPortion: function(angle, night) {
-		var method = setting.highLats;
-		var portion = 1/2 // MidNight
-		if (method == 'AngleBased')
-			portion = 1/60* angle;
-		if (method == 'OneSeventh')
+	private double nightPortion(double angle, double night) {
+		highLatMethods method = setting.getHighLats();
+		double portion = 1/2 ;// MidNight
+		if (method.equals(highLatMethods.AngleBased))
+			portion = 1/60 * angle;
+		if (method.equals(highLatMethods.OneSeventh))
 			portion = 1/7;
 		return portion* night;
-	},
+	}
 
 
 	// convert hours to day portions
-	public prayerTimesData dayPortion( prayerTimesData times) {
-		for (var i in times)
-			times[i] /= 24;
+	private prayerTimesData dayPortion( prayerTimesData times) {
+		
+		times.setAsr(times.getAsr() / 24);
+		times.setImsak(times.getImsak() / 24);
+		times.setFajr(times.getFajr() / 24);
+		times.setSunrise(times.getSunrise() / 24);
+		times.setDhuhr(times.getDhuhr() / 24);
+		times.setSunset(times.getSunset() / 24);
+		times.setMaghrib(times.getMaghrib() / 24);
+		times.setIsha(times.getIsha() / 24);
+		times.setMidnight(times.getMidnight() / 24);
+				
 		return times;
 	}
 
@@ -457,15 +468,15 @@ public class PrayerTimes {
 	//---------------------- Misc Functions -----------------------
 
 	// convert given string into a number
-	public double eval(String str) {
+	private double eval(String str) {
 		return Double.parseDouble(str.split("[^0-9.+-]")[0]);
 	}
 	
-	public double eval(double str) {
+	private double eval(double str) {
 		return str;
 	}
 	
-	public double eval(int str) {
+	private double eval(int str) {
 		return str;
 	}
 
