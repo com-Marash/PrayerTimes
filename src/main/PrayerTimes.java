@@ -4,16 +4,14 @@
  * Development: Marash Company
  * License: MIT
  * Url: https://github.com/com-Marash/PrayerTimes
- * Version: 0.1.0-Alpha 
+ * Version: 0.2.0-Alpha 
  * 
  */
 
 package main;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
+
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
@@ -29,7 +27,7 @@ import methodDetailsEnums.midnightMethods;
 
 public class PrayerTimes {
 	
-	public enum timeNames{
+	private enum timeNames{
 		Imsak, Fajr, Sunrise, Dhuhr, Asr, Sunset, Maghrib, Isha, Midnight
 	}
 	
@@ -46,7 +44,7 @@ public class PrayerTimes {
 		
 		private MethodDetails details;
 		
-		methods(MethodDetails details){
+		private methods(MethodDetails details){
 			this.details = details;
 		}
 		
@@ -56,7 +54,7 @@ public class PrayerTimes {
 	}
 	
 	
-	public enum timeFormats{
+	private enum timeFormats{
 		t_24h,         // 24-hour format
 		t_12h,         // 12-hour format
 		t_12hNS,       // 12-hour format with no suffix
@@ -78,8 +76,8 @@ public class PrayerTimes {
 	// offset for Imsak, Fajr, Sunrise, Dhuhr, Asr, Sunset, Maghrib, Isha, Midnight
 	private int[] offset;
 	
-	private double lat, lng, elv,       // coordinates
-	timeZone, jDate;     // time variables
+	private double lat, lng, elv;       // coordinates
+	private double timeZone, jDate;     // time variables
 	
 
 	// constructor
@@ -97,41 +95,21 @@ public class PrayerTimes {
 		// set the setting based on default method
 		setting = calcMethod.getDetails();
 		
-	}		
-			
-	//----------------------- Public Functions ------------------------
-			
-	// set calculation method 
-	public void setMethod(methods method) {		
-		this.adjust(method.getDetails());
-		calcMethod = method;
 	}
+			
+
 
 	// set calculating parameters
-	public void adjust (MethodDetails details) {
+	private void adjust (MethodDetails details) {
 		setting = details;
 	}
 
 	// offset for Imsak, Fajr, Sunrise, Dhuhr, Asr, Sunset, Maghrib, Isha, Midnight
 	// set time offsets
-	public void tune (int[] timeOffsets) {
+	private void tune (int[] timeOffsets) {
 		offset = timeOffsets;
 	};
 
-	// get current calculation method
-	public methods getMethod(){
-		return calcMethod; 
-	};
-
-	// get current setting
-	public MethodDetails getSetting(){
-		return setting;
-	};
-
-	// get current time offsets
-	public int[] getOffsets() {
-		return offset;
-	};
 	
 	// return prayer times for a given date
 	// date is an array of three integers: [fullYear, month, day]
@@ -143,12 +121,13 @@ public class PrayerTimes {
 		lat = coords.getLat();
 		lng = coords.getLng(); 
 		elv = (coords.getLng() == null) ? 0 : coords.getLng();
+		
 		timeFormat = (format == null)? timeFormat : format;
 		
+		
 		// get the timeZone based on the input date
-		if (timezone == null){
+		if (timezone == null)
 			timezone = getTimeZone(date);
-		}
 		
 		if (dst == null) 
 			dst = getDst(date);
@@ -163,7 +142,7 @@ public class PrayerTimes {
 	
 	/* ###### not supported at this time ###### */
 	// convert float time to the given format (see timeFormats)
-	public	String getFormattedTime(double time, timeFormats format, String[] suffixes) {
+	private	String getFormattedTime(double time, timeFormats format, String[] suffixes) {
 		
 		//if (time == null)
 		//	return invalidTime;
@@ -187,7 +166,7 @@ public class PrayerTimes {
 
 
 	// compute mid-day time
-	public double midDay(double time) {
+	private double midDay(double time) {
 		// sunPosition returns an object with equation and declination
 		double eqt = sunPosition(jDate+ time).getEquation();
 		double noon = DMath.fixHour(12- eqt);
@@ -196,7 +175,7 @@ public class PrayerTimes {
 
 
 	// compute the time at which sun reaches a specific angle below horizon
-	public double sunAngleTime(double angle, double time, boolean isDirectionCCW) {
+	private double sunAngleTime(double angle, double time, boolean isDirectionCCW) {
 		
 		double decl = sunPosition(jDate+ time).getDeclination();
 		
@@ -209,7 +188,7 @@ public class PrayerTimes {
 
 
 	// compute asr time 
-	public double asrTime(double factor, double time) {
+	private double asrTime(double factor, double time) {
 		
 		double decl = sunPosition(jDate+ time).getDeclination();
 		double angle = -DMath.arccot(factor+ DMath.tan(Math.abs(lat- decl)));
@@ -219,7 +198,7 @@ public class PrayerTimes {
 
 	// compute declination angle of sun and equation of time
 	// Ref: http://aa.usno.navy.mil/faq/docs/SunApprox.php
-	public sunPositionData sunPosition (double jd) {
+	private sunPositionData sunPosition (double jd) {
 		double D = jd - 2451545.0;
 		double g = DMath.fixAngle(357.529 + 0.98560028* D);
 		double q = DMath.fixAngle(280.459 + 0.98564736* D);
@@ -238,7 +217,7 @@ public class PrayerTimes {
 
 	// convert Gregorian date to Julian day
 	// Ref: Astronomical Algorithms by Jean Meeus
-	public double julian (int year, int month, int day) {
+	private double julian (int year, int month, int day) {
 		if (month <= 2) {
 			year -= 1;
 			month += 12;
@@ -428,7 +407,9 @@ public class PrayerTimes {
 		times.setSunset(times.getSunset() / 24);
 		times.setMaghrib(times.getMaghrib() / 24);
 		times.setIsha(times.getIsha() / 24);
-		times.setMidnight(times.getMidnight() / 24);
+		
+		if (times.getMidnight() != null)
+			times.setMidnight(times.getMidnight() / 24);
 				
 		return times;
 	}
@@ -490,5 +471,27 @@ public class PrayerTimes {
 	private double twoDigitsFormat(double num) {
 		return (num <10) ? '0'+ num : num;
 	}
+	
+	// #### getter / setter ####
+	
+	// set calculation method 
+	public void setMethod(methods method) {		
+		this.adjust(method.getDetails());
+		calcMethod = method;
+	}
+	// get current calculation method
+	public methods getMethod(){
+		return calcMethod; 
+	};
+
+	// get current setting
+	public MethodDetails getSetting(){
+		return setting;
+	};
+
+	// get current time offsets
+	public int[] getOffsets() {
+		return offset;
+	};
 
 }
