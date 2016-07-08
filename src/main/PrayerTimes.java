@@ -4,7 +4,7 @@
  * Development: Marash Company
  * License: MIT
  * Url: https://github.com/com-Marash/PrayerTimes
- * Version: 0.2.0-Alpha 
+ * Version: 0.2.1-Alpha 
  * 
  */
 
@@ -34,13 +34,13 @@ public class PrayerTimes {
 	
 	public enum methods{
 		
-		MWL(new MethodDetails("Muslim World League", 18, 17, -1, midnightMethods.Standard, -1, 0, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle)),
-		ISNA(new MethodDetails("Islamic Society of North America (ISNA)", 15, 15, -1, midnightMethods.Standard, -1, 0, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle)),
-		Egypt(new MethodDetails("Egyptian General Authority of Survey", 19.5, 17.5, -1, midnightMethods.Standard, -1, 0, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle)),
-		Makkah(new MethodDetails("Umm Al-Qura University, Makkah", 18.5, -1, -1, midnightMethods.Standard, 90, 0 , 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle)),
-		Karachi(new MethodDetails("University of Islamic Sciences, Karachi", 18, 18, -1, midnightMethods.Standard, -1, 0, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle)),
-		Tehran(new MethodDetails("Institute of Geophysics, University of Tehran", 17.7, 14, 4.5, midnightMethods.Jafari, -1, -1, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle)),
-		Jafari(new MethodDetails("Shia Ithna-Ashari, Leva Institute, Qum", 16, 14, 4, midnightMethods.Jafari, -1, -1, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle));
+		MWL(new MethodDetails("Muslim World League", 18, 17, -1, midnightMethods.Standard, -1, 0, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle, "MWL")),
+		ISNA(new MethodDetails("Islamic Society of North America (ISNA)", 15, 15, -1, midnightMethods.Standard, -1, 0, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle, "ISNA")),
+		Egypt(new MethodDetails("Egyptian General Authority of Survey", 19.5, 17.5, -1, midnightMethods.Standard, -1, 0, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle, "Egypt")),
+		Makkah(new MethodDetails("Umm Al-Qura University, Makkah", 18.5, -1, -1, midnightMethods.Standard, 90, 0 , 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle, "Makkah")),
+		Karachi(new MethodDetails("University of Islamic Sciences, Karachi", 18, 18, -1, midnightMethods.Standard, -1, 0, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle, "Karachi")),
+		Tehran(new MethodDetails("Institute of Geophysics, University of Tehran", 17.7, 14, 4.5, midnightMethods.Jafari, -1, -1, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle, "Tehran")),
+		Jafari(new MethodDetails("Shia Ithna-Ashari, Leva Institute, Qum", 16, 14, 4, midnightMethods.Jafari, -1, -1, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle, "Jafari"));
 		
 		private MethodDetails details;
 		
@@ -119,8 +119,11 @@ public class PrayerTimes {
 	
 	public prayerTimesData getTimes(int[] date, Coordination coords, Double timezone, Boolean dst, timeFormats format) throws Exception {
 		lat = coords.getLat();
-		lng = coords.getLng(); 
-		elv = (coords.getLng() == null) ? 0 : coords.getLng();
+		lng = coords.getLng();
+		
+		// TODO: what is coords[2]?
+		//elv = (coords.getLng() == null) ? 0 : coords[2];
+		elv = 0;
 		
 		timeFormat = (format == null)? timeFormat : format;
 		
@@ -181,7 +184,7 @@ public class PrayerTimes {
 		
 		double noon = midDay(time);
 		
-		double t = 1/15 * DMath.arccos((-DMath.sin(angle)- DMath.sin(decl)* DMath.sin(lat))/ 
+		double t = (1d/15d) * DMath.arccos((-DMath.sin(angle)- DMath.sin(decl)* DMath.sin(lat))/ 
 				(DMath.cos(decl)* DMath.cos(lat)));
 		return noon+ (isDirectionCCW ? -t : t);
 	}
@@ -277,26 +280,33 @@ public class PrayerTimes {
 	private prayerTimesData adjustTimes( prayerTimesData times) {
 		MethodDetails params = setting;
 
-		times.setAsr(times.getAsr() + timeZone - lng/ 15);
-		times.setImsak(times.getImsak() + timeZone - lng/ 15);
-		times.setFajr(times.getFajr() + timeZone - lng/ 15);
-		times.setSunrise(times.getSunrise() + timeZone - lng/ 15);
-		times.setDhuhr(times.getDhuhr() + timeZone - lng/ 15);
-		times.setSunset(times.getSunset() + timeZone - lng/ 15);
-		times.setMaghrib(times.getMaghrib() + timeZone - lng/ 15);
-		times.setIsha(times.getIsha() + timeZone - lng/ 15);
+		times.setAsr(times.getAsr() + timeZone - lng/ 15d);
+		times.setImsak(times.getImsak() + timeZone - lng/ 15d);
+		times.setFajr(times.getFajr() + timeZone - lng/ 15d);
+		times.setSunrise(times.getSunrise() + timeZone - lng/ 15d);
+		times.setDhuhr(times.getDhuhr() + timeZone - lng/ 15d);
+		times.setSunset(times.getSunset() + timeZone - lng/ 15d);
+		times.setMaghrib(times.getMaghrib() + timeZone - lng/ 15d);
+		times.setIsha(times.getIsha() + timeZone - lng/ 15d);
 		
 		
 		if (!params.getHighLats().equals(highLatMethods.None))
 			times = adjustHighLats(times);
 
+		String methodCode = getMethod().getDetails().getCode();
+		times.setImsak( times.getFajr() - eval(params.getImsakMin())/ 60d);
 		
-		times.setImsak( times.getFajr() - eval(params.getImsakMin())/ 60);
+		// does not apply to Jafari and Tehran
+		if (!methodCode.equals("Jafari") && !methodCode.equals("Tehran")){
+			times.setMaghrib(times.getSunset()+ eval(params.getMaghrib())/ 60d);
+		}
 		
-		times.setMaghrib(times.getSunset()+ eval(params.getMaghrib())/ 60);
+		// only applies to Makkah calculation:
+		if (methodCode.equals("Makkah")){
+			times.setIsha(times.getMaghrib()+ eval(params.getIsha())/ 60d);
+		}
 		
-		times.setIsha(times.getMaghrib()+ eval(params.getIsha())/ 60);
-		times.setDhuhr( times.getDhuhr() + eval(params.getDhuhrMin())/ 60);
+		times.setDhuhr( times.getDhuhr() + eval(params.getDhuhrMin())/ 60d);
 
 		return times;
 	}
@@ -387,11 +397,11 @@ public class PrayerTimes {
 	// the night portion used for adjusting times in higher latitudes
 	private double nightPortion(double angle, double night) {
 		highLatMethods method = setting.getHighLats();
-		double portion = 1/2 ;// MidNight
+		double portion = 1d/2d ;// MidNight
 		if (method.equals(highLatMethods.AngleBased))
-			portion = 1/60 * angle;
+			portion = 1d/60d * angle;
 		if (method.equals(highLatMethods.OneSeventh))
-			portion = 1/7;
+			portion = 1d/7d;
 		return portion* night;
 	}
 

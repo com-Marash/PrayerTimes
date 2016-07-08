@@ -244,6 +244,7 @@ function PrayTimes(method) {
 		timeFormat = format || timeFormat;
 		if (date.constructor === Date)
 			date = [date.getFullYear(), date.getMonth()+ 1, date.getDate()];
+			console.log("date is : " + JSON.stringify(date));
 		if (typeof(timezone) == 'undefined' || timezone == 'auto')
 			timezone = this.getTimeZone(date);
 		if (typeof(dst) == 'undefined' || dst == 'auto')
@@ -576,5 +577,5 @@ var prayTimes = new PrayTimes();
 // testing:
 
 var PT = new PrayTimes('ISNA');
-var times = PT.getTimes(new Date(), [43, -80], -5);
-document.write('Sunrise = '+ times.sunrise)
+var times = PT.getTimes(new Date(), [40, -80], -5);
+document.write(JSON.stringify(times));

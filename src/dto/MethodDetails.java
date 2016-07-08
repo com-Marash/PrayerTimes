@@ -16,11 +16,12 @@ public class MethodDetails {
 	private int dhuhrMin;
 	private asrJuristics asr;
 	private highLatMethods highLats;
+	private String code;
 	
 	
 	public MethodDetails(String name, double fajr, double isha, double maghrib,
 			midnightMethods midnight, int ishaMin, int maghribMin,
-			int imsakMin, int dhuhrMin, asrJuristics asr, highLatMethods highLats ){
+			int imsakMin, int dhuhrMin, asrJuristics asr, highLatMethods highLats, String code){
 		
 		this.name = name;
 		this.fajr = fajr;
@@ -33,6 +34,7 @@ public class MethodDetails {
 		this.dhuhrMin = dhuhrMin;
 		this.asr = asr;
 		this.highLats = highLats;
+		this.code = code;
 	}
 
 
@@ -143,6 +145,16 @@ public class MethodDetails {
 
 	public void setHighLats(highLatMethods highLats) {
 		this.highLats = highLats;
+	}
+
+
+	public String getCode() {
+		return code;
+	}
+
+
+	public void setCode(String code) {
+		this.code = code;
 	}
 
 	
