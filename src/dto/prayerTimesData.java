@@ -3,103 +3,103 @@ package dto;
 public class prayerTimesData {
 
 	
-	private double imsak;
-	private double fajr;
-	private double sunrise;
-	private double dhuhr;
-	private double asr;
-	private double sunset;
-	private double maghrib;
-	private double isha;
-	private Double midnight;
+	private prayerTimesDouble imsak;
+	private prayerTimesDouble fajr;
+	private prayerTimesDouble sunrise;
+	private prayerTimesDouble dhuhr;
+	private prayerTimesDouble asr;
+	private prayerTimesDouble sunset;
+	private prayerTimesDouble maghrib;
+	private prayerTimesDouble isha;
+	private prayerTimesDouble midnight;
 	
 	public prayerTimesData(double imsak, double fajr, double sunrise, double dhuhr, double asr, double sunset,
 			double maghrib, double isha, Double midnight) {
-		this.imsak = imsak;
-		this.fajr= fajr;
-		this.sunrise = sunrise;
-		this.dhuhr = dhuhr;
-		this.asr = asr;
-		this.sunset = sunset;
-		this.maghrib = maghrib;
-		this.isha = isha;
-		this.midnight = midnight;
+		this.imsak = new prayerTimesDouble(imsak);
+		this.fajr= new prayerTimesDouble(fajr);
+		this.sunrise = new prayerTimesDouble(sunrise);
+		this.dhuhr = new prayerTimesDouble(dhuhr);
+		this.asr = new prayerTimesDouble(asr);
+		this.sunset = new prayerTimesDouble(sunset);
+		this.maghrib = new prayerTimesDouble(maghrib);
+		this.isha = new prayerTimesDouble(isha);
+		this.midnight = new prayerTimesDouble(midnight);
 	}
 
 	public prayerTimesData() {
 		
 	}
 
-	public double getImsak() {
+	public prayerTimesDouble getImsak() {
 		return imsak;
 	}
 
 	public void setImsak(double imsak) {
-		this.imsak = imsak;
+		this.imsak.setTime(imsak);
 	}
-
-	public double getFajr() {
+	
+	public prayerTimesDouble getFajr() {
 		return fajr;
 	}
 
 	public void setFajr(double fajr) {
-		this.fajr = fajr;
+		this.fajr.setTime(fajr);
 	}
 
-	public double getSunrise() {
+	public prayerTimesDouble getSunrise() {
 		return sunrise;
 	}
 
 	public void setSunrise(double sunrise) {
-		this.sunrise = sunrise;
+		this.sunrise.setTime(sunrise);
 	}
 
-	public double getDhuhr() {
+	public prayerTimesDouble getDhuhr() {
 		return dhuhr;
 	}
 
 	public void setDhuhr(double dhuhr) {
-		this.dhuhr = dhuhr;
+		this.dhuhr.setTime(dhuhr);
 	}
 
-	public double getAsr() {
+	public prayerTimesDouble getAsr() {
 		return asr;
 	}
 
 	public void setAsr(double asr) {
-		this.asr = asr;
+		this.asr.setTime(asr);
 	}
 
-	public double getSunset() {
+	public prayerTimesDouble getSunset() {
 		return sunset;
 	}
 
 	public void setSunset(double sunset) {
-		this.sunset = sunset;
+		this.sunset.setTime(sunset);
 	}
 
-	public double getMaghrib() {
+	public prayerTimesDouble getMaghrib() {
 		return maghrib;
 	}
 
 	public void setMaghrib(double maghrib) {
-		this.maghrib = maghrib;
+		this.maghrib.setTime(maghrib);
 	}
 
-	public double getIsha() {
+	public prayerTimesDouble getIsha() {
 		return isha;
 	}
 
 	public void setIsha(double isha) {
-		this.isha = isha;
+		this.isha.setTime(isha);
 	}
 
-	public Double getMidnight() {
+	public prayerTimesDouble getMidnight() {
 		return midnight;
 	}
 
 	public void setMidnight(Double midnight) {
-		this.midnight = midnight;
+		this.midnight.setTime(midnight);
 	}
 	
 }

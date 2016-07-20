@@ -1,5 +1,9 @@
 package main;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
 import dto.Coordination;
 import dto.prayerTimesData;
 import main.PrayerTimes.methods;
@@ -11,17 +15,22 @@ public class Tester {
 		myPrayerTimes.setMethod(methods.ISNA);
 		
 		try {
-			prayerTimesData calculatedTimes = myPrayerTimes.getTimes(new int[]{2016,7,8}, new Coordination(40, -80), (double) -5, null, null);
 			
-			System.out.println(calculatedTimes.getImsak());
-			System.out.println(calculatedTimes.getFajr());
-			System.out.println(calculatedTimes.getSunrise());
-			System.out.println(calculatedTimes.getDhuhr());
-			System.out.println(calculatedTimes.getAsr());
-			System.out.println(calculatedTimes.getSunset());
-			System.out.println(calculatedTimes.getMaghrib());
-			System.out.println(calculatedTimes.getIsha());
-			System.out.println(calculatedTimes.getMidnight());
+			Date date = new Date();
+			Calendar calendar = new GregorianCalendar();
+			calendar.setTime(date);
+			
+			prayerTimesData calculatedTimes = myPrayerTimes.getTimes(new int[]{calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH) +1,calendar.get(Calendar.DAY_OF_MONTH)}, new Coordination(40, -80), (double) -5, null);
+			
+			System.out.println(calculatedTimes.getImsak().getFormatedTime());
+			System.out.println(calculatedTimes.getFajr().getFormatedTime());
+			System.out.println(calculatedTimes.getSunrise().getFormatedTime());
+			System.out.println(calculatedTimes.getDhuhr().getFormatedTime());
+			System.out.println(calculatedTimes.getAsr().getFormatedTime());
+			System.out.println(calculatedTimes.getSunset().getFormatedTime());
+			System.out.println(calculatedTimes.getMaghrib().getFormatedTime());
+			System.out.println(calculatedTimes.getIsha().getFormatedTime());
+			System.out.println(calculatedTimes.getMidnight().getFormatedTime());
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
