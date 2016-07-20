@@ -4,7 +4,7 @@
  * Development: Marash Company
  * License: MIT
  * Url: https://github.com/com-Marash/PrayerTimes
- * Version: 0.1.0-Beta 
+ * Version: 1.0.0-Beta 
  * 
  */
 
