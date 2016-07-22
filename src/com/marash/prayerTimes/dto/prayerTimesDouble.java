@@ -1,6 +1,6 @@
-package dto;
+package com.marash.prayerTimes.dto;
 
-import main.DMath;
+import com.marash.prayerTimes.main.DMath;
 
 public class prayerTimesDouble {
 	private Double time;

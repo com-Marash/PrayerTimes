@@ -1,4 +1,4 @@
-package main;
+package com.marash.prayerTimes.main;
 
 //---------------------- Degree-Based Math Class -----------------------
 

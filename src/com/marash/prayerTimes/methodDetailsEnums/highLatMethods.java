@@ -1,4 +1,4 @@
-package methodDetailsEnums;
+package com.marash.prayerTimes.methodDetailsEnums;
 
 public enum highLatMethods {
 	NightMiddle, // middle of night

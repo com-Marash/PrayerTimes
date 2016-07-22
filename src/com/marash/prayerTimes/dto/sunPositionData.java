@@ -1,4 +1,4 @@
-package dto;
+package com.marash.prayerTimes.dto;
 
 public class sunPositionData {
 	private double declination;

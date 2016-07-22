@@ -1,12 +1,12 @@
-package main;
+package com.marash.prayerTimes.main;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-import dto.Coordination;
-import dto.prayerTimesData;
-import main.PrayerTimes.methods;
+import com.marash.prayerTimes.dto.Coordination;
+import com.marash.prayerTimes.dto.prayerTimesData;
+import com.marash.prayerTimes.main.PrayerTimes.methods;
 
 public class Tester {
 

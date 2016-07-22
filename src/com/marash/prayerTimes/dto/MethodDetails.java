@@ -1,7 +1,7 @@
-package dto;
-import methodDetailsEnums.asrJuristics;
-import methodDetailsEnums.highLatMethods;
-import methodDetailsEnums.midnightMethods;
+package com.marash.prayerTimes.dto;
+import com.marash.prayerTimes.methodDetailsEnums.asrJuristics;
+import com.marash.prayerTimes.methodDetailsEnums.highLatMethods;
+import com.marash.prayerTimes.methodDetailsEnums.midnightMethods;
 
 public class MethodDetails {
 

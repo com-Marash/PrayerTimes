@@ -4,24 +4,24 @@
  * Development: Marash Company
  * License: MIT
  * Url: https://github.com/com-Marash/PrayerTimes
- * Version: 1.0.1-Beta 
+ * Version: 1.0.2-Beta 
  * 
  */
 
-package main;
+package com.marash.prayerTimes.main;
 
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
-import dto.Coordination;
-import dto.MethodDetails;
-import dto.sunPositionData;
-import dto.prayerTimesData;
-import methodDetailsEnums.asrJuristics;
-import methodDetailsEnums.highLatMethods;
-import methodDetailsEnums.midnightMethods;
+import com.marash.prayerTimes.dto.Coordination;
+import com.marash.prayerTimes.dto.MethodDetails;
+import com.marash.prayerTimes.dto.prayerTimesData;
+import com.marash.prayerTimes.dto.sunPositionData;
+import com.marash.prayerTimes.methodDetailsEnums.asrJuristics;
+import com.marash.prayerTimes.methodDetailsEnums.highLatMethods;
+import com.marash.prayerTimes.methodDetailsEnums.midnightMethods;
 
 
 
