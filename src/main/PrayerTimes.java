@@ -4,7 +4,7 @@
  * Development: Marash Company
  * License: MIT
  * Url: https://github.com/com-Marash/PrayerTimes
- * Version: 1.0.0-Beta 
+ * Version: 1.0.1-Beta 
  * 
  */
 
@@ -26,11 +26,6 @@ import methodDetailsEnums.midnightMethods;
 
 
 public class PrayerTimes {
-	
-	private enum timeNames{
-		Imsak, Fajr, Sunrise, Dhuhr, Asr, Sunset, Maghrib, Isha, Midnight
-	}
-	
 	
 	public enum methods{
 		
