@@ -4,7 +4,7 @@
  * Development: Marash Company
  * License: MIT
  * Url: https://github.com/com-Marash/PrayerTimes
- * Version: 1.0.2-Beta 
+ * Version: 1.0.3-Beta 
  * 
  */
 
@@ -54,7 +54,6 @@ public class PrayerTimes {
 	
 	private methods calcMethod;
 	private MethodDetails setting;
-	private String invalidTime;
 	private int numIterations;
 	
 	// offset for Imsak, Fajr, Sunrise, Dhuhr, Asr, Sunset, Maghrib, Isha, Midnight
@@ -67,7 +66,6 @@ public class PrayerTimes {
 	// constructor
 	
 	public PrayerTimes() {
-		invalidTime = "-----";
 		numIterations = 1;
 		offset = new int[]{0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0};
 		
@@ -84,13 +82,6 @@ public class PrayerTimes {
 	private void adjust (MethodDetails details) {
 		setting = details;
 	}
-
-	// offset for Imsak, Fajr, Sunrise, Dhuhr, Asr, Sunset, Maghrib, Isha, Midnight
-	// set time offsets
-	private void tune (int[] timeOffsets) {
-		offset = timeOffsets;
-	};
-
 	
 	// return prayer times for a given date
 	// date is an array of three integers: [fullYear, month, day]
@@ -98,11 +89,11 @@ public class PrayerTimes {
 	// timezone : Double can be -12 to +12
 	// dst refers to daylight saving time it can true (+1 hour) or false (+0 hour) 
 	
-	public prayerTimesData getTimes(int[] date, Coordination coords, Double timezone, Boolean dst) throws Exception {
+	public prayerTimesData getTimes(int[] date, Coordination coords, Double timezone, Boolean dayLightSaving) throws Exception {
 		lat = coords.getLat();
 		lng = coords.getLng();
 		
-		// TODO: what is coords[2]?
+		// what is coords[2]?
 		//elv = (coords.getLng() == null) ? 0 : coords[2];
 		elv = 0;
 		
@@ -110,15 +101,19 @@ public class PrayerTimes {
 		if (timezone == null)
 			timezone = getTimeZone(date);
 		
-		if (dst == null) 
-			dst = getDst(date);
+		if (dayLightSaving == null) 
+			dayLightSaving = getDst(date);
 		
 		// add daylight saving
-		timeZone = timezone + (dst ? 1 : 0);
+		timeZone = timezone + (dayLightSaving ? 1 : 0);
 		
 		jDate = julian(date[0], date[1], date[2])- lng/ (15* 24);
 		
 		return computeTimes();
+	}
+	
+	public prayerTimesData getTimes(int[] date, Coordination coords) throws Exception{
+		return getTimes(date, coords, null, null);
 	}
 	
 	/* ###### not supported at this time ###### */
@@ -186,7 +181,7 @@ public class PrayerTimes {
 		double q = DMath.fixAngle(280.459 + 0.98564736* D);
 		double L = DMath.fixAngle(q + 1.915* DMath.sin(g) + 0.020* DMath.sin(2*g));
 
-		double R = 1.00014 - 0.01671* DMath.cos(g) - 0.00014* DMath.cos(2*g);
+		//double R = 1.00014 - 0.01671* DMath.cos(g) - 0.00014* DMath.cos(2*g);
 		double e = 23.439 - 0.00000036* D;
 
 		double RA = DMath.arctan2(DMath.cos(e)* DMath.sin(L), DMath.cos(L))/ 15;
@@ -220,14 +215,14 @@ public class PrayerTimes {
 		times = dayPortion(times);
 		MethodDetails params  = setting;
 
-		double imsak   = this.sunAngleTime(eval(params.getImsakMin()), times.getImsak().getTime(), true);
-		double fajr    = this.sunAngleTime(eval(params.getFajr()), times.getFajr().getTime(), true);
+		double imsak   = this.sunAngleTime(params.getImsakMin(), times.getImsak().getTime(), true);
+		double fajr    = this.sunAngleTime(params.getFajr(), times.getFajr().getTime(), true);
 		double sunrise = this.sunAngleTime(riseSetAngle(), times.getSunrise().getTime(), true);
 		double dhuhr   = this.midDay(times.getDhuhr().getTime());
 		double asr     = this.asrTime(asrFactor(params.getAsr()), times.getAsr().getTime());
 		double sunset  = this.sunAngleTime(riseSetAngle(), times.getSunset().getTime() , false);;
-		double maghrib = this.sunAngleTime(eval(params.getMaghrib()), times.getMaghrib().getTime(), false);
-		double isha    = this.sunAngleTime(eval(params.getIsha()), times.getIsha().getTime(), false);
+		double maghrib = this.sunAngleTime(params.getMaghrib(), times.getMaghrib().getTime(), false);
+		double isha    = this.sunAngleTime(params.getIsha(), times.getIsha().getTime(), false);
 
 		return new prayerTimesData(imsak, fajr, sunrise, dhuhr, asr, sunset, maghrib, isha, null);
 	}
@@ -273,19 +268,19 @@ public class PrayerTimes {
 			times = adjustHighLats(times);
 
 		String methodCode = getMethod().getDetails().getCode();
-		times.setImsak( times.getFajr().getTime() - eval(params.getImsakMin())/ 60d);
+		times.setImsak( times.getFajr().getTime() - params.getImsakMin()/ 60d);
 		
 		// does not apply to Jafari and Tehran
 		if (!methodCode.equals("Jafari") && !methodCode.equals("Tehran")){
-			times.setMaghrib(times.getSunset().getTime()+ eval(params.getMaghrib())/ 60d);
+			times.setMaghrib(times.getSunset().getTime()+ params.getMaghrib()/ 60d);
 		}
 		
 		// only applies to Makkah calculation:
 		if (methodCode.equals("Makkah")){
-			times.setIsha(times.getMaghrib().getTime()+ eval(params.getIsha())/ 60d);
+			times.setIsha(times.getMaghrib().getTime()+ params.getIsha()/ 60d);
 		}
 		
-		times.setDhuhr( times.getDhuhr().getTime() + eval(params.getDhuhrMin())/ 60d);
+		times.setDhuhr( times.getDhuhr().getTime() + params.getDhuhrMin()/ 60d);
 
 		return times;
 	}
@@ -300,9 +295,6 @@ public class PrayerTimes {
 			return 2;
 		}
 		throw new Exception("asrParam is unset");
-	}
-	private double asrFactor(int asrParam) {
-		return eval(asrParam);
 	}
 
 	// return sun angle for sunset/sunrise
@@ -353,10 +345,10 @@ public class PrayerTimes {
 		MethodDetails params = setting;
 		double nightTime = this.timeDiff(times.getSunset().getTime(), times.getSunrise().getTime());
 
-		times.setImsak ( this.adjustHLTime(times.getImsak().getTime(), times.getSunrise().getTime(), this.eval(params.getImsakMin()), nightTime, "ccw") );
-		times.setFajr ( this.adjustHLTime(times.getFajr().getTime(), times.getSunrise().getTime(), this.eval(params.getFajr()), nightTime, "ccw") );
-		times.setIsha  ( this.adjustHLTime(times.getIsha().getTime(), times.getSunset().getTime(), this.eval(params.getIsha()), nightTime, null) );
-		times.setMaghrib ( this.adjustHLTime(times.getMaghrib().getTime(), times.getSunset().getTime(), this.eval(params.getMaghrib()), nightTime, null) );
+		times.setImsak ( this.adjustHLTime(times.getImsak().getTime(), times.getSunrise().getTime(), params.getImsakMin(), nightTime, "ccw") );
+		times.setFajr ( this.adjustHLTime(times.getFajr().getTime(), times.getSunrise().getTime(), params.getFajr(), nightTime, "ccw") );
+		times.setIsha  ( this.adjustHLTime(times.getIsha().getTime(), times.getSunset().getTime(), params.getIsha(), nightTime, null) );
+		times.setMaghrib ( this.adjustHLTime(times.getMaghrib().getTime(), times.getSunset().getTime(), params.getMaghrib(), nightTime, null) );
 
 		return times;
 	}
@@ -437,19 +429,6 @@ public class PrayerTimes {
 
 	//---------------------- Misc Functions -----------------------
 
-	// convert given string into a number
-	private double eval(String str) {
-		return Double.parseDouble(str.split("[^0-9.+-]")[0]);
-	}
-	
-	private double eval(double str) {
-		return str;
-	}
-	
-	private double eval(int str) {
-		return str;
-	}
-
 	// compute the difference between two times
 	private double timeDiff(double time1, double time2) {
 		return DMath.fixHour(time2- time1);
@@ -472,16 +451,6 @@ public class PrayerTimes {
 	// get current calculation method
 	public methods getMethod(){
 		return calcMethod; 
-	};
-
-	// get current setting
-	public MethodDetails getSetting(){
-		return setting;
-	};
-
-	// get current time offsets
-	public int[] getOffsets() {
-		return offset;
 	};
 
 }
