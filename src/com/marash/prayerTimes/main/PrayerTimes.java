@@ -4,7 +4,7 @@
  * Development: Marash Company
  * License: MIT
  * Url: https://github.com/com-Marash/PrayerTimes
- * Version: 1.0.4-Beta 
+ * Version: 1.1.0-Beta 
  * 
  */
 
@@ -64,20 +64,21 @@ public class PrayerTimes {
 	
 
 	// constructor
-	
 	public PrayerTimes() {
 		numIterations = 1;
 		offset = new int[]{0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0};
-		
 		// default calcMethod
 		calcMethod = methods.MWL;
-		// set the setting based on default method
 		setting = calcMethod.getDetails();
-		
 	}
-			
-
-
+	
+	public PrayerTimes(methods method){
+		numIterations = 1;
+		offset = new int[]{0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0};
+		calcMethod = method;
+		setting = calcMethod.getDetails();
+	}
+	
 	// set calculating parameters
 	private void adjust (MethodDetails details) {
 		setting = details;
@@ -116,29 +117,15 @@ public class PrayerTimes {
 		return getTimes(date, coords, null, null);
 	}
 	
-	/* ###### not supported at this time ###### */
-	/*
-	// convert float time to the given format (see timeFormats)
-	private	String getFormattedTime(double time) {
-		
-		//if (time == null)
-		//	return invalidTime;
-		
-		if (format == timeFormats.t_Float)
-				return String.valueOf(time);
-		
-		if (suffixes == null){
-			suffixes = timeSuffixes;
-		}
-		
-		time = DMath.fixHour(time+ 0.5/ 60);  // add 0.5 minutes to round
-		double hours = Math.floor(time); 
-		double minutes = Math.floor((time- hours)* 60);
-		String suffix = (format.equals(timeFormats.t_12h)) ? suffixes[hours < 12 ? 0 : 1] : "";
-		double hour = (format.equals(timeFormats.t_24h)) ? twoDigitsFormat(hours) : ((hours+ 12 -1)% 12+ 1);
-		return hour+ ":"+ this.twoDigitsFormat(minutes)+ (!suffix.isEmpty() ? " "+ suffix : "");
+	public prayerTimesData getTimes(int year, int month, int day, double latitude, double longitude){
+		return getTimes(new int[]{year,month,day}, new Coordination(latitude, longitude), null, null);
 	}
-	*/
+	
+	public prayerTimesData getTimes(int year, int month, int day, double latitude, double longitude, Double timezone, Boolean dayLightSaving){
+		return getTimes(new int[]{year,month,day}, new Coordination(latitude, longitude), timezone, dayLightSaving);
+	}
+	
+	
 	//---------------------- Calculation Functions -----------------------
 
 
@@ -321,24 +308,6 @@ public class PrayerTimes {
 		return times;
 	}
 
-
-	/* we do not support format
-	// convert times to given time format
-	public prayerTimesData modifyFormats(prayerTimesData times) {
-		
-		times.setImsak(getFormattedTime(times.getImsak().getTime(), timeFormat, null));
-		times.setFajr (getFormattedTime(times.getFajr().getTime(), timeFormat, null));
-		times.sunrise = getFormattedTime(times.sunrise, timeFormat);
-		times.dhuhr= getFormattedTime(times.dhuhr, timeFormat);
-		times.asr= getFormattedTime(times.asr, timeFormat);
-		times.sunset= getFormattedTime(times.sunset, timeFormat);
-		times.maghrib= getFormattedTime(times.maghrib, timeFormat);
-		times.isha= getFormattedTime(times.isha, timeFormat);
-	        
-		return times;
-	}
-	*/
-
 	// adjust times for locations in higher latitudes
 	private prayerTimesData adjustHighLats(prayerTimesData times) {
 		MethodDetails params = setting;
@@ -432,13 +401,6 @@ public class PrayerTimes {
 	private double timeDiff(double time1, double time2) {
 		return DMath.fixHour(time2- time1);
 	}
-
-	/*
-	// add a leading 0 if necessary
-	private double twoDigitsFormat(double num) {
-		return (num <10) ? '0'+ num : num;
-	}
-	*/
 	
 	// #### getter / setter ####
 	
