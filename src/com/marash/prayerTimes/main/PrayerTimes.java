@@ -4,7 +4,7 @@
  * Development: Marash Company
  * License: MIT
  * Url: https://github.com/com-Marash/PrayerTimes
- * Version: 1.0.3-Beta 
+ * Version: 1.0.4-Beta 
  * 
  */
 
@@ -89,7 +89,7 @@ public class PrayerTimes {
 	// timezone : Double can be -12 to +12
 	// dst refers to daylight saving time it can true (+1 hour) or false (+0 hour) 
 	
-	public prayerTimesData getTimes(int[] date, Coordination coords, Double timezone, Boolean dayLightSaving) throws Exception {
+	public prayerTimesData getTimes(int[] date, Coordination coords, Double timezone, Boolean dayLightSaving) {
 		lat = coords.getLat();
 		lng = coords.getLng();
 		
@@ -112,7 +112,7 @@ public class PrayerTimes {
 		return computeTimes();
 	}
 	
-	public prayerTimesData getTimes(int[] date, Coordination coords) throws Exception{
+	public prayerTimesData getTimes(int[] date, Coordination coords){
 		return getTimes(date, coords, null, null);
 	}
 	
@@ -211,7 +211,7 @@ public class PrayerTimes {
 
 	
 	// compute prayer times at given julian date
-	private prayerTimesData computePrayerTimes (prayerTimesData times) throws Exception {
+	private prayerTimesData computePrayerTimes (prayerTimesData times) {
 		times = dayPortion(times);
 		MethodDetails params  = setting;
 
@@ -229,7 +229,7 @@ public class PrayerTimes {
 
 	
 	// compute prayer times
-	private prayerTimesData computeTimes() throws Exception {
+	private prayerTimesData computeTimes() {
 		// default times
 		prayerTimesData times = new prayerTimesData(5, 5, 6, 12, 13, 18, 18, 18, null);
 
@@ -287,14 +287,13 @@ public class PrayerTimes {
 
 
 	// get asr shadow factor
-	private double asrFactor(asrJuristics asrParam) throws Exception {
-		
-		if(asrParam == asrJuristics.Standard){
-			return 1;
-		}else if (asrParam == asrJuristics.Hanafi){
+	private double asrFactor(asrJuristics asrParam){
+		if (asrParam == asrJuristics.Hanafi){
 			return 2;
+		}else{
+			// assume asrJuristics.Standard
+			return 1;
 		}
-		throw new Exception("asrParam is unset");
 	}
 
 	// return sun angle for sunset/sunrise
