@@ -4,7 +4,7 @@
  * Development: Marash Company
  * License: MIT
  * Url: https://github.com/com-Marash/PrayerTimes
- * Version: 1.1.0-Beta 
+ * Version: 1.2.0-Beta 
  * 
  */
 
@@ -110,7 +110,12 @@ public class PrayerTimes {
 		
 		jDate = julian(date[0], date[1], date[2])- lng/ (15* 24);
 		
-		return computeTimes();
+		prayerTimesData result = computeTimes();
+		Calendar calender =  Calendar.getInstance();
+		calender.set(date[0], date[1] -1 , date[2], 0, 0);
+		result.setCalender(calender);
+		
+		return result;
 	}
 	
 	public prayerTimesData getTimes(int[] date, Coordination coords){
@@ -233,7 +238,6 @@ public class PrayerTimes {
 
 		times = this.tuneTimes(times);
 		return times;
-		//return modifyFormats(times);
 	}
 
 

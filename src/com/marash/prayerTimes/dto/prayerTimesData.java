@@ -1,36 +1,54 @@
 package com.marash.prayerTimes.dto;
 
+import java.util.Calendar;
+
 public class prayerTimesData {
 
 	
-	private prayerTimesDouble imsak;
-	private prayerTimesDouble fajr;
-	private prayerTimesDouble sunrise;
-	private prayerTimesDouble dhuhr;
-	private prayerTimesDouble asr;
-	private prayerTimesDouble sunset;
-	private prayerTimesDouble maghrib;
-	private prayerTimesDouble isha;
-	private prayerTimesDouble midnight;
+	private PrayerTimesDate imsak;
+	private PrayerTimesDate fajr;
+	private PrayerTimesDate sunrise;
+	private PrayerTimesDate dhuhr;
+	private PrayerTimesDate asr;
+	private PrayerTimesDate sunset;
+	private PrayerTimesDate maghrib;
+	private PrayerTimesDate isha;
+	private PrayerTimesDate midnight;
+	private Calendar calender; 
 	
 	public prayerTimesData(double imsak, double fajr, double sunrise, double dhuhr, double asr, double sunset,
 			double maghrib, double isha, Double midnight) {
-		this.imsak = new prayerTimesDouble(imsak);
-		this.fajr= new prayerTimesDouble(fajr);
-		this.sunrise = new prayerTimesDouble(sunrise);
-		this.dhuhr = new prayerTimesDouble(dhuhr);
-		this.asr = new prayerTimesDouble(asr);
-		this.sunset = new prayerTimesDouble(sunset);
-		this.maghrib = new prayerTimesDouble(maghrib);
-		this.isha = new prayerTimesDouble(isha);
-		this.midnight = new prayerTimesDouble(midnight);
+		this.imsak = new PrayerTimesDate(imsak);
+		this.fajr= new PrayerTimesDate(fajr);
+		this.sunrise = new PrayerTimesDate(sunrise);
+		this.dhuhr = new PrayerTimesDate(dhuhr);
+		this.asr = new PrayerTimesDate(asr);
+		this.sunset = new PrayerTimesDate(sunset);
+		this.maghrib = new PrayerTimesDate(maghrib);
+		this.isha = new PrayerTimesDate(isha);
+		this.midnight = new PrayerTimesDate(midnight);
+		this.setCalender(null);
+	}
+	
+	public prayerTimesData(double imsak, double fajr, double sunrise, double dhuhr, double asr, double sunset,
+			double maghrib, double isha, Double midnight, Calendar calender ) {
+		this.imsak = new PrayerTimesDate(imsak);
+		this.fajr= new PrayerTimesDate(fajr);
+		this.sunrise = new PrayerTimesDate(sunrise);
+		this.dhuhr = new PrayerTimesDate(dhuhr);
+		this.asr = new PrayerTimesDate(asr);
+		this.sunset = new PrayerTimesDate(sunset);
+		this.maghrib = new PrayerTimesDate(maghrib);
+		this.isha = new PrayerTimesDate(isha);
+		this.midnight = new PrayerTimesDate(midnight);
+		this.setCalender(calender);
 	}
 
 	public prayerTimesData() {
 		
 	}
 
-	public prayerTimesDouble getImsak() {
+	public PrayerTimesDate getImsak() {
 		return imsak;
 	}
 
@@ -38,7 +56,7 @@ public class prayerTimesData {
 		this.imsak.setTime(imsak);
 	}
 	
-	public prayerTimesDouble getFajr() {
+	public PrayerTimesDate getFajr() {
 		return fajr;
 	}
 
@@ -46,7 +64,7 @@ public class prayerTimesData {
 		this.fajr.setTime(fajr);
 	}
 
-	public prayerTimesDouble getSunrise() {
+	public PrayerTimesDate getSunrise() {
 		return sunrise;
 	}
 
@@ -54,7 +72,7 @@ public class prayerTimesData {
 		this.sunrise.setTime(sunrise);
 	}
 
-	public prayerTimesDouble getDhuhr() {
+	public PrayerTimesDate getDhuhr() {
 		return dhuhr;
 	}
 
@@ -62,7 +80,7 @@ public class prayerTimesData {
 		this.dhuhr.setTime(dhuhr);
 	}
 
-	public prayerTimesDouble getAsr() {
+	public PrayerTimesDate getAsr() {
 		return asr;
 	}
 
@@ -70,7 +88,7 @@ public class prayerTimesData {
 		this.asr.setTime(asr);
 	}
 
-	public prayerTimesDouble getSunset() {
+	public PrayerTimesDate getSunset() {
 		return sunset;
 	}
 
@@ -78,7 +96,7 @@ public class prayerTimesData {
 		this.sunset.setTime(sunset);
 	}
 
-	public prayerTimesDouble getMaghrib() {
+	public PrayerTimesDate getMaghrib() {
 		return maghrib;
 	}
 
@@ -86,7 +104,7 @@ public class prayerTimesData {
 		this.maghrib.setTime(maghrib);
 	}
 
-	public prayerTimesDouble getIsha() {
+	public PrayerTimesDate getIsha() {
 		return isha;
 	}
 
@@ -94,12 +112,20 @@ public class prayerTimesData {
 		this.isha.setTime(isha);
 	}
 
-	public prayerTimesDouble getMidnight() {
+	public PrayerTimesDate getMidnight() {
 		return midnight;
 	}
 
 	public void setMidnight(Double midnight) {
 		this.midnight.setTime(midnight);
+	}
+
+	public Calendar getCalender() {
+		return calender;
+	}
+
+	public void setCalender(Calendar calender) {
+		this.calender = calender;
 	}
 	
 }

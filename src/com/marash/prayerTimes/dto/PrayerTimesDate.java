@@ -2,12 +2,12 @@ package com.marash.prayerTimes.dto;
 
 import com.marash.prayerTimes.main.DMath;
 
-public class prayerTimesDouble {
+public class PrayerTimesDate {
 	private Double time;
 	private int hour;
 	private int min;
 	
-	public prayerTimesDouble(Double time){
+	public PrayerTimesDate(Double time){
 		this.setTime(time);
 	}
 	
