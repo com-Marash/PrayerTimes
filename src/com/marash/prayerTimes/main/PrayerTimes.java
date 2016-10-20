@@ -4,7 +4,7 @@
  * Development: Marash Company
  * License: MIT
  * Url: https://github.com/com-Marash/PrayerTimes
- * Version: 1.2.0-Beta 
+ * Version: 2.0.0 
  * 
  */
 
@@ -130,6 +130,13 @@ public class PrayerTimes {
 		return getTimes(new int[]{year,month,day}, new Coordination(latitude, longitude), timezone, dayLightSaving);
 	}
 	
+	public prayerTimesData getTimes(Calendar calendar, double latitude, double longitude){
+		return getTimes(new int[]{calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH)}, new Coordination(latitude, longitude));
+	}
+
+	public prayerTimesData getTimes(Calendar calendar, Coordination coords){
+		return getTimes(new int[]{calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH)}, coords);
+	}
 	
 	//---------------------- Calculation Functions -----------------------
 

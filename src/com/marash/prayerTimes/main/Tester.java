@@ -1,8 +1,6 @@
 package com.marash.prayerTimes.main;
 
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 
 import com.marash.prayerTimes.dto.Coordination;
 import com.marash.prayerTimes.dto.prayerTimesData;
@@ -16,9 +14,7 @@ public class Tester {
 		
 		try {
 			
-			Date date = new Date();
-			Calendar calendar = new GregorianCalendar();
-			calendar.setTime(date);
+			Calendar calendar = Calendar.getInstance();
 			
 			prayerTimesData calculatedTimes = myPrayerTimes.getTimes(new int[]{calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH) +1,calendar.get(Calendar.DAY_OF_MONTH)}, new Coordination(40, -80), (double) -5, null);
 			

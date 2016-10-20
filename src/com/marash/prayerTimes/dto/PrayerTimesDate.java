@@ -28,7 +28,15 @@ public class PrayerTimesDate {
 	}
 	
 	public String getFormatedTime(){
-		return hour + ":" + min;
+		String hourString = String.valueOf(hour);
+		String minString = String.valueOf(min);
+		if (hour < 10){
+			hourString = "0" + hourString;
+		}
+		if (min <10){
+			minString = "0" + minString;
+		}
+		return hourString + ":" + minString;
 	}
 	
 	private void calculateTimes(){
