@@ -4,16 +4,12 @@
  * Development: Marash Company
  * License: MIT
  * Url: https://github.com/com-Marash/PrayerTimes
- * Version: 2.0.0 
+ * Version: 2.0.1
  * 
  */
 
 package com.marash.prayerTimes.main;
 
-
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.TimeZone;
 
 import com.marash.prayerTimes.dto.Coordination;
 import com.marash.prayerTimes.dto.MethodDetails;
@@ -23,13 +19,17 @@ import com.marash.prayerTimes.methodDetailsEnums.asrJuristics;
 import com.marash.prayerTimes.methodDetailsEnums.highLatMethods;
 import com.marash.prayerTimes.methodDetailsEnums.midnightMethods;
 
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
+
 
 
 public class PrayerTimes {
 	
 	public enum methods{
 		
-		MWL(new MethodDetails("Muslim World League", 18, 17, -1, midnightMethods.Standard, -1, 0, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle, "MWL")),
+		MWL(new MethodDetails("Muslim World League", 18, 17, 0, midnightMethods.Standard, -1, 0, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle, "MWL")),
 		ISNA(new MethodDetails("Islamic Society of North America (ISNA)", 15, 15, 0, midnightMethods.Standard, -1, 0, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle, "ISNA")),
 		Egypt(new MethodDetails("Egyptian General Authority of Survey", 19.5, 17.5, 0, midnightMethods.Standard, -1, 0, 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle, "Egypt")),
 		Makkah(new MethodDetails("Umm Al-Qura University, Makkah", 18.5, -1, 0, midnightMethods.Standard, 90, 0 , 10, 0, asrJuristics.Standard, highLatMethods.NightMiddle, "Makkah")),
@@ -219,7 +219,7 @@ public class PrayerTimes {
 		double sunrise = this.sunAngleTime(riseSetAngle(), times.getSunrise().getTime(), true);
 		double dhuhr   = this.midDay(times.getDhuhr().getTime());
 		double asr     = this.asrTime(asrFactor(params.getAsr()), times.getAsr().getTime());
-		double sunset  = this.sunAngleTime(riseSetAngle(), times.getSunset().getTime() , false);;
+		double sunset  = this.sunAngleTime(riseSetAngle(), times.getSunset().getTime() , false);
 		double maghrib = this.sunAngleTime(params.getMaghrib(), times.getMaghrib().getTime(), false);
 		double isha    = this.sunAngleTime(params.getIsha(), times.getIsha().getTime(), false);
 
@@ -270,12 +270,12 @@ public class PrayerTimes {
 		
 		// does not apply to Jafari and Tehran
 		if (!methodCode.equals("Jafari") && !methodCode.equals("Tehran")){
-			times.setMaghrib(times.getSunset().getTime()+ params.getMaghrib()/ 60d);
+			times.setMaghrib(times.getSunset().getTime()+ params.getMaghribMin()/ 60d);
 		}
 		
 		// only applies to Makkah calculation:
 		if (methodCode.equals("Makkah")){
-			times.setIsha(times.getMaghrib().getTime()+ params.getIsha()/ 60d);
+			times.setIsha(times.getMaghrib().getTime()+ params.getIshaMin()/ 60d);
 		}
 		
 		times.setDhuhr( times.getDhuhr().getTime() + params.getDhuhrMin()/ 60d);
